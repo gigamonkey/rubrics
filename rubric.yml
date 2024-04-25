@@ -1,0 +1,30 @@
+Expression:
+  no constructor or empty constructor: 1.0
+  evaluate method return type is double: 1.0
+  evaluate method returns NaN: 1.0
+
+Number:
+  extends Expression: 1.0
+  constructor takes and initializes value: 1.0
+  evaluate returns value: 1.0
+
+BinaryOperator:
+  extends Expression: 1.0
+  instance variables for Expressions: 1.0
+  takes and initializes Expression objects: 1.0
+  evaluate inherited: 0.5
+
+Addition:
+  extends BinaryOperator: 1.0
+  constructor calls super: 1.0
+  evaluate evaluates sub-expressions: 0.5
+
+Multiplication:
+  extends BinaryOperator: 1.0
+  constructor calls super: 1.0
+  evaluate evaluates sub-expressions: 0.5
+
+LoggingAddition:
+  extends Addition: 1.0
+  prints message: 1.0
+  calls super.evaluate: 2.0
