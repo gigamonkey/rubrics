@@ -114,4 +114,4 @@ const saveScores = () => {
 
 };
 
-show(parseInt((window.location.hash ?? "#1").substring(1)) - 1);
+show(parseInt((window.location.hash || "#1").substring(1)) - 1);
