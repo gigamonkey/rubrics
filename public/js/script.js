@@ -19,20 +19,18 @@ doc.sha.onclick = () => {
   }
 };
 
-let current = null;
-
 /*
  * Show the answers and score for a given numbered commit.
  */
 const show = async (which) => {
-  window.location.hash = `#${which + 1}`;
-  doc.n.innerText = (which + 1);
+  window.location.hash = `#${which}`;
+  doc.n.innerText = which;
   doc.who.style.display = 'none';
 
-  current = await fetch(`/a/answers/${shas[which]}`).then(r => r.json());
+  const current = await fetch(`/a/submission/${which}`).then(r => r.json());
   doc.sha.innerText = current.sha;
-  doc.who.innerText = current.who + ' (' + current.date + ')';
-  doc.score.innerText = scoreString(current.scores);
+  doc.who.innerText = current.github + ' (' + current.date + ')';
+  //doc.score.innerText = scoreString(current.scores);
 
   doc.questions.replaceChildren();
   fillAnswers(current);
@@ -43,18 +41,13 @@ const show = async (which) => {
 
 const fillAnswers = (current) => {
 
-  console.log(current);
-  console.log(current.scores);
-
-  current.answers.forEach((a, i) => {
+  Object.entries(current.answers).forEach(([q, answer]) => {
     const temp = doc.q.content.cloneNode(true);
-    temp.querySelector('code.language-java').append(a);
+    temp.querySelector('code.language-java').append(answer);
 
     const rubric = temp.querySelector('.rubric');
 
-    console.log(`i: ${i}`);
-
-    Object.entries(current.scores[i]).forEach(([k, v]) => {
+    Object.entries(current.scores[q]).forEach(([k, v]) => {
       const label = doc.r.content.cloneNode(true);
       const yesButton = label.querySelector('button.yes');
       const noButton = label.querySelector('button.no');
@@ -67,30 +60,30 @@ const fillAnswers = (current) => {
       yesButton.onclick = () => {
         if (yesButton.classList.contains('selected')) {
           yesButton.classList.remove('selected');
-          current.scores[i][k] = '';
+          current.scores[q][k] = '';
         } else {
-          current.scores[i][k] = 'yes';
+          current.scores[q][k] = 'yes';
           yesButton.classList.add('selected');
           noButton.classList.remove('selected');
         }
-        saveScores();
+        saveScores(current);
       }
 
       noButton.onclick = () => {
         if (noButton.classList.contains('selected')) {
           noButton.classList.remove('selected');
-          current.scores[i][k] = '';
+          current.scores[q][k] = '';
         } else {
-          current.scores[i][k] = 'no';
+          current.scores[q][k] = 'no';
           noButton.classList.add('selected');
           yesButton.classList.remove('selected');
         }
-        saveScores();
+        saveScores(current);
       }
 
       label.querySelector('.description').append(k);
       rubric.append(label);
-    });
+      });
     doc.questions.append(temp);
   });
 
@@ -98,13 +91,13 @@ const fillAnswers = (current) => {
 }
 
 const scoreString = (scores) => {
-  const s = rawScore(current.scores);
-  const done = percentGraded(current.scores) === 1.0 ? '✅' : '';
+  const s = rawScore(scores);
+  const done = percentGraded(scores) === 1.0 ? '✅' : '';
   return `Score: ${(100 * s).toFixed(1)}; Grade: ${fps(s)}; Done? ${done}`;
 };
 
 
-const saveScores = () => {
+const saveScores = (current) => {
   fetch(`/a/scores/${current.sha}`, {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
@@ -114,4 +107,4 @@ const saveScores = () => {
 
 };
 
-show(parseInt((window.location.hash || "#1").substring(1)) - 1);
+show(parseInt((window.location.hash || "#1").substring(1)));
