@@ -145,10 +145,12 @@ const num = submissions.length;
 fillProgress(submissions);
 
 document.body.onkeydown = (e) => {
-  if (e.key === 'ArrowRight') {
-    showNext();
-  } else if (e.key === 'ArrowLeft') {
-    showPrevious();
+  if (e.target === document.body) {
+    if (e.key === 'ArrowRight') {
+      showNext();
+    } else if (e.key === 'ArrowLeft') {
+      showPrevious();
+    }
   }
 }
 
