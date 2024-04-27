@@ -40,6 +40,11 @@ const sql = {
     sql: `delete from rubric where true`,
   },
 
+  clearQuestions: {
+    action: run,
+    sql: `delete from questions where true`,
+  },
+
   insertQuestion: {
     action: run,
     sql: `insert into questions (question, sequence) values ($question, $sequence)`,
@@ -127,9 +132,9 @@ const sql = {
 
   getAnswers: {
     action: get,
-    sql: `select json_group_object(question, answer) as value
-          from answers
-          where sha = $sha`,
+    sql: `select json_group_object(q.question, coalesce(answer, '')) value
+          from questions q
+          left join answers a on q.question = a.question and sha = $sha`,
   },
 
   getScores: {

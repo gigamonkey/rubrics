@@ -5,6 +5,7 @@ import { glob } from 'glob';
 import { DB } from './db.js';
 
 const reloadRubric = (rubric) => {
+  db.clearQuestions();
   db.clearRubric();
   Object.entries(rubric).forEach(([question, items], sequence) => {
     db.insertQuestion({sequence, question});
