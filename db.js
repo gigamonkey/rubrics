@@ -47,12 +47,12 @@ const sql = {
 
   insertSubmission: {
     action: run,
-    sql: `insert into submissions (github, date, sha) values ($github, $date, $sha)`,
+    sql: `insert into submissions (sha, github, date) values ($sha, $github, $date)`,
   },
 
   insertAnswer: {
     action: run,
-    sql: `insert into answers (submission_id, question, answer) values ($submissionId, $question, $answer)`,
+    sql: `insert into answers (sha, question, answer) values ($sha, $question, $answer)`,
   },
 
   shas: {
@@ -78,19 +78,19 @@ const sql = {
 
   getSubmission: {
     action: get,
-    sql: `select github, sha, date from submissions where submission_id = $submissionId`,
+    sql: `select sha, github, date from submissions where sha = $sha`,
   },
 
   allSubmissions: {
     action: all,
-    sql: `select submission_id, github, sha, date from submissions`,
+    sql: `select sha, github, sha, date from submissions`,
   },
 
   getAnswers: {
     action: get,
     sql: `select json_group_object(question, answer) as value
           from answers
-          where submission_id = $submissionId`,
+          where sha = $sha`,
   },
 
   getScores: {
@@ -99,8 +99,8 @@ const sql = {
             select r.question, json_group_object(r.criteria, score) criteria
             from submissions
             join rubric as r
-            left join scores using (submission_id, question, criteria)
-            where submission_id = $submissionId
+            left join scores using (sha, question, criteria)
+            where sha = $sha
             group by question
           )
           select json_group_object(question, json(criteria)) value from criteria`,
@@ -110,7 +110,7 @@ const sql = {
     action: all,
     sql: `select sha, github, date, json_group_array(answer) as answers
           from submissions
-          join answers using (submission_id)
+          join answers using (sha)
           join questions using (question)
           group by sha, github, date
           order by sequence`,
@@ -119,13 +119,13 @@ const sql = {
   amountGraded: {
     action: all,
     sql: `select
-            submission_id,
+            sha,
             sum(case when score is null then 1 else 0 end) ungraded,
             sum(case when score is not null then 1 else 0 end) graded
           from submissions
           join rubric r
-          left join scores using (submission_id, question, criteria)
-          group by submission_id`,
+          left join scores using (sha, question, criteria)
+          group by sha`,
   },
 };
 

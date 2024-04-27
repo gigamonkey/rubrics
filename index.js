@@ -122,31 +122,13 @@ app.get('/a/submissions', (req, res) => {
   res.json(db.allSubmissions());
 });
 
-app.get('/a/submission/:submissionId', (req, res) => {
-  const { submissionId } = req.params;
+app.get('/a/submission/:sha', (req, res) => {
+  const { sha } = req.params;
   res.json({
-    ...db.getSubmission({submissionId}),
-    answers: JSON.parse(db.getAnswers({submissionId}).value),
-    scores: JSON.parse(db.getScores({submissionId}).value),
+    ...db.getSubmission({sha}),
+    answers: JSON.parse(db.getAnswers({sha}).value),
+    scores: JSON.parse(db.getScores({sha}).value),
   });
-});
-
-/*
- * Get the answers for a given submission.
- */
-app.get('/a/answers/:submissionId', (req, res) => {
-  const { submissionId } = req.params;
-  res.type('json');
-  res.send(db.getAnswers({submissionId}).value);
-});
-
-/*
- * Get the score for a given submission.
- */
-app.get('/a/scores/:submissionId', (req, res) => {
-  const { submissionId } = req.params;
-  res.type('json');
-  res.send(db.getScores({submissionId}).value);
 });
 
 

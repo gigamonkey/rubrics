@@ -5,8 +5,10 @@ const doc = byId();
 
 const mod = (a, b) => ((a % b) + b) % b;
 
-const shas = await fetch('/a/answers/').then(r => r.json());
-const num = shas.length;
+const submissions = await fetch('/a/submissions/').then(r => r.json());
+const num = submissions.length;
+
+console.log(submissions);
 
 doc.num.innerText = num;
 
@@ -27,7 +29,9 @@ const show = async (which) => {
   doc.n.innerText = which;
   doc.who.style.display = 'none';
 
-  const current = await fetch(`/a/submission/${which}`).then(r => r.json());
+  const sha = submissions[which - 1].sha;
+
+  const current = await fetch(`/a/submission/${sha}`).then(r => r.json());
   doc.sha.innerText = current.sha;
   doc.who.innerText = current.github + ' (' + current.date + ')';
   //doc.score.innerText = scoreString(current.scores);
@@ -35,8 +39,8 @@ const show = async (which) => {
   doc.questions.replaceChildren();
   fillAnswers(current);
 
-  doc.prev.onclick = () => show(mod(which - 1, shas.length));
-  doc.next.onclick = () => show(mod(which + 1, shas.length));
+  doc.prev.onclick = () => show(mod(which - 1, submissions.length));
+  doc.next.onclick = () => show(mod(which + 1, submissions.length));
 }
 
 const fillAnswers = (current) => {
