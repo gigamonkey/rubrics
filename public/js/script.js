@@ -5,48 +5,54 @@ const doc = byId();
 
 const mod = (a, b) => ((a % b) + b) % b;
 
-const submissions = await fetch('/a/submissions/').then(r => r.json());
-const num = submissions.length;
+const circles = {};
 
-console.log(submissions);
-
-doc.num.innerText = num;
-
-doc.sha.onclick = () => {
-  if (doc.who.style.display === 'block') {
-    doc.who.style.display = 'none';
-  } else {
-    doc.who.style.display = 'block';
-    setTimeout(() => doc.who.style.display = 'none', 1000);
-  }
+const fillProgress = (submissions) => {
+  const p = $('#progress');
+  submissions.forEach((s, i) => {
+    const span = $('<span>');
+    circles[s.sha] = span;
+    span.onclick = () => {
+      show(i + 1);
+    };
+    if (s.done === 1.0) {
+      span.classList.add('done');
+    }
+    p.append(span);
+  });
 };
+
 
 /*
  * Show the answers and score for a given numbered commit.
  */
 const show = async (which) => {
   window.location.hash = `#${which}`;
-  doc.n.innerText = which;
-  doc.who.style.display = 'none';
 
   const sha = submissions[which - 1].sha;
 
   const current = await fetch(`/a/submission/${sha}`).then(r => r.json());
 
-  console.log(current);
+  doc.score.innerText = scoreString(current.stats);
+  $$('#progress span.current').forEach(e => e.classList.remove('current'));
+  circles[sha].classList.add('current');
 
-  doc.sha.innerText = current.sha;
-  doc.who.innerText = current.github + ' (' + current.date + ')';
-  //doc.score.innerText = scoreString(current.scores);
-
-  doc.questions.replaceChildren();
   fillAnswers(current);
+};
 
-  doc.prev.onclick = () => show(mod(which - 1, submissions.length));
-  doc.next.onclick = () => show(mod(which + 1, submissions.length));
-}
+const showNext = () => {
+  const c = parseInt(window.location.hash.substring(1));
+  show(mod(c - 1 + 1, submissions.length) + 1);
+};
+
+const showPrevious = () => {
+  const c = parseInt(window.location.hash.substring(1));
+  show(mod(c - 2, submissions.length) + 1);
+};
 
 const fillAnswers = (current) => {
+
+  doc.questions.replaceChildren();
 
   Object.entries(current.answers).forEach(([q, answer]) => {
     const temp = doc.q.content.cloneNode(true);
@@ -97,34 +103,38 @@ const fillAnswers = (current) => {
   $$('code.language-java').forEach(e => Prism.highlightElement(e));
 }
 
-const scoreString = (scores) => {
-  const s = rawScore(scores);
-  const done = percentGraded(scores) === 1.0 ? '✅' : '';
-  return `Score: ${(100 * s).toFixed(1)}; Grade: ${fps(s)}; Done? ${done}`;
+const scoreString = (score) => {
+  const done = score.done === 1.0 ? '✅' : `${(100 * score.done).toFixed(1)}%`;
+  return `Score: ${(100 * score.grade).toFixed(1)}; Grade: ${fps(score.grade)}; Done: ${done}`;
 };
 
 
-const saveScore = (sha, question, criteria, correct) => {
-  fetch(`/a/scores/${sha}`, {
+const saveScore = async (sha, question, criteria, correct) => {
+  const stats = await fetch(`/a/scores/${sha}`, {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({question, criteria, correct }),
-  });
-  // update overall scores. Might be best to have server send whole score data blob
+  }).then(r => r.json());
+  doc.score.innerText = scoreString(stats);
+  if (stats.done === 1.0) {
+    circles[sha].classList.add('done');
+  } else {
+    circles[sha].classList.remove('done');
+  }
 };
 
-/*
 
-const saveScores = (current) => {
-  fetch(`/a/scores/${current.sha}`, {
-    method: 'PUT',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(current.scores),
-  });
-  doc.score.innerText = scoreString(current.scores);
+const submissions = await fetch('/a/submissions/').then(r => r.json());
+const num = submissions.length;
 
-  };
+fillProgress(submissions);
 
-  */
+document.body.onkeydown = (e) => {
+  if (e.key === 'ArrowRight') {
+    showNext();
+  } else if (e.key === 'ArrowLeft') {
+    showPrevious();
+  }
+}
 
 show(parseInt((window.location.hash || "#1").substring(1)));

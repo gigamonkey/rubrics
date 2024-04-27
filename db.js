@@ -96,7 +96,15 @@ const sql = {
 
   allSubmissions: {
     action: all,
-    sql: `select sha, github, sha, date from submissions`,
+    sql: `select
+            sha,
+            github,
+            date,
+            sum(case when correct is not null then 1.0 else 0.0 end) / count(sha) done,
+            sum(case when correct = 'yes' then weight else 0 end) / sum(weight) grade
+          from submissions, rubric
+          left join scores using (sha, question, criteria)
+          group by sha`,
   },
 
   getAnswers: {
@@ -127,6 +135,17 @@ const sql = {
           join questions using (question)
           group by sha, github, date
           order by sequence`,
+  },
+
+  gradeStats: {
+    action: get,
+    sql: `select
+            sha,
+            sum(case when correct is not null then 1.0 else 0.0 end) / count(sha) done,
+            sum(case when correct = 'yes' then weight else 0 end) / sum(weight) grade
+          from submissions, rubric
+          left join scores using (sha, question, criteria)
+          where sha = $sha`,
   },
 
   amountGraded: {

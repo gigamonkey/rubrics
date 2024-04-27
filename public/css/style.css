@@ -7,7 +7,7 @@ html {
 
 body {
   width: 90vw;
-  margin: 1in auto;
+  margin: 0.25in auto;
 }
 
 h1 {
@@ -72,4 +72,40 @@ button.no.selected {
 
 #who {
   display: none;
+}
+
+#progress {
+  display: grid;
+  grid-gap: 5px;
+  grid-template-columns: repeat(auto-fill, 20px);
+  justify-content: center;
+}
+
+#xprogress {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  gap: 5px;
+
+}
+
+
+#progress span {
+  border-radius: 50%;
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border: 1px solid blue;
+}
+
+#progress span.current {
+  border: 2px solid red;
+}
+
+#progress span.done {
+    background: blue;
+}
+
+#score {
+  text-align: right;
 }
