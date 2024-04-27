@@ -40,6 +40,7 @@ app.get('/a/submission/:sha', (req, res) => {
     ...db.getSubmission({sha}),
     answers: JSON.parse(db.getAnswers({sha}).value),
     scores: JSON.parse(db.getScores({sha}).value),
+    comments: JSON.parse(db.getComments({sha}).value),
     stats: db.gradeStats({sha}),
   });
 });
@@ -58,6 +59,21 @@ app.put('/a/scores/:sha', (req, res) => {
   }
   res.json(db.gradeStats({sha}));
 });
+
+/*
+ * Update or delete per-question comment.
+ */
+app.put('/a/comment/:sha', (req, res) => {
+  const { sha } = req.params;
+  const { question, comment } = req.body;
+  if (comment) {
+    db.updateComment({sha, question, comment });
+  } else {
+    db.deleteComment({sha, question });
+  }
+  res.send('ok');
+});
+
 
 /*
 

@@ -3,15 +3,13 @@
 --PRAGMA foreign_keys = ON;
 
 -- Questions for ordering
-drop table if exists questions;
-create table questions (
+create table if not exists questions (
   question TEXT PRIMARY_KEY,
   sequence INTEGER
 );
 
 -- Rubric items per question
-drop table if exists rubric;
-create table rubric (
+create table if not exists rubric (
   question TEXT NOT NULL,
   criteria TEXT NOT NULL,
   sequence INTEGER NOT NULL,
@@ -19,26 +17,30 @@ create table rubric (
 );
 
 -- Submissions per student, date commit
-drop table if exists submissions;
-create table submissions (
+create table if not exists submissions (
   sha TEXT PRIMARY KEY,
   github TEXT NOT NULL,
   date TEXT NOT NULL
 );
 
 -- Answers per student, date, commit
-drop table if exists answers;
-create table answers (
+create table if not exists answers (
   sha TEXT NOT NULL,
   question TEXT NOT NULL,
   answer TEXT NOT NULL
 );
 
-drop table if exists scores;
-create table scores (
+create table if not exists scores (
   sha TEXT NOT NULL,
   question TEXT NOT NULL,
   criteria TEXT NOT NULL,
   correct TEXT NOT NULL,
   primary key (sha, question, criteria)
+);
+
+create table if not exists comments (
+  sha TEXT NOT NULL,
+  question TEXT NOT NULL,
+  comment TEXT NOT NULL,
+  primary key (sha, question)
 );

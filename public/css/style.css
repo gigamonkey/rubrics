@@ -54,6 +54,12 @@ div.rubric label input[type="checkbox"] {
   height: 1em;
 }
 
+div.rubric textarea {
+  width: 100%;
+  height: 6em;
+}
+
+
 div.rubric label button {
   text-align: center;
 }

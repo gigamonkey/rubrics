@@ -68,9 +68,22 @@ const sql = {
           do update set correct = $correct`,
   },
 
+  updateComment: {
+    action: run,
+    sql: `insert into comments (sha, question, comment)
+          values ($sha, $question, $comment)
+          on conflict (sha, question)
+          do update set comment = $comment`,
+  },
+
   deleteScore: {
     action: run,
     sql: `delete from scores where sha = $sha and question = $question and criteria = $criteria`,
+  },
+
+  deleteComment: {
+    action: run,
+    sql: `delete from comments where sha = $sha and question = $question`,
   },
 
   shas: {
@@ -130,6 +143,11 @@ const sql = {
             group by question
           )
           select json_group_object(question, json(criteria)) value from criteria`,
+  },
+
+  getComments: {
+    action: get,
+    sql: `select json_group_object(question, comment) value from comments where sha = $sha`,
   },
 
   getAllAnswers: {

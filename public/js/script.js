@@ -1,5 +1,5 @@
 import { $, $$, byId } from './dom.js';
-import { rawScore, percentGraded, fps } from './scoring.js';
+import { fps } from './scoring.js';
 
 const doc = byId();
 
@@ -42,7 +42,7 @@ const show = async (which) => {
 
 const showNext = () => {
   const c = parseInt(window.location.hash.substring(1));
-  show(mod(c - 1 + 1, submissions.length) + 1);
+  show(mod(c, submissions.length) + 1);
 };
 
 const showPrevious = () => {
@@ -96,7 +96,16 @@ const fillAnswers = (current) => {
 
       label.querySelector('.description').append(k);
       rubric.append(label);
-      });
+    });
+
+    const commentBox = $('<textarea>');
+    commentBox.value = current.comments[q] ?? ''
+    commentBox.onchange = (e) => {
+      saveComment(current.sha, q, e.target.value);
+    };
+    rubric.append(commentBox);
+
+
     doc.questions.append(temp);
   });
 
@@ -107,7 +116,6 @@ const scoreString = (score) => {
   const done = score.done === 1.0 ? '✅' : `${(100 * score.done).toFixed(1)}%`;
   return `Score: ${(100 * score.grade).toFixed(1)}; Grade: ${fps(score.grade)}; Done: ${done}`;
 };
-
 
 const saveScore = async (sha, question, criteria, correct) => {
   const stats = await fetch(`/a/scores/${sha}`, {
@@ -123,6 +131,13 @@ const saveScore = async (sha, question, criteria, correct) => {
   }
 };
 
+const saveComment = async (sha, question, comment) => {
+  fetch(`/a/comment/${sha}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({question, comment }),
+  });
+};
 
 const submissions = await fetch('/a/submissions/').then(r => r.json());
 const num = submissions.length;
