@@ -12,17 +12,20 @@ BinaryOperator:
   extends Expression: 1.0
   instance variables for Expressions: 1.0
   takes and initializes Expression objects: 1.0
+  getters for getLeft and getRight: 1.0
   evaluate inherited: 0.5
 
 Addition:
   extends BinaryOperator: 1.0
   constructor calls super: 1.0
   evaluate evaluates sub-expressions: 0.5
+  evaluate correctly computes retult: 0.5
 
 Multiplication:
   extends BinaryOperator: 1.0
   constructor calls super: 1.0
   evaluate evaluates sub-expressions: 0.5
+  evaluate correctly computes retult: 0.5
 
 LoggingAddition:
   extends Addition: 1.0
