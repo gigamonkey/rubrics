@@ -39,5 +39,6 @@ create table scores (
   sha TEXT NOT NULL,
   question TEXT NOT NULL,
   criteria TEXT NOT NULL,
-  score INTEGER NOT NULL
+  correct TEXT NOT NULL,
+  primary key (sha, question, criteria)
 );

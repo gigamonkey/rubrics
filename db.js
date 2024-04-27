@@ -55,6 +55,19 @@ const sql = {
     sql: `insert into answers (sha, question, answer) values ($sha, $question, $answer)`,
   },
 
+  updateScore: {
+    action: run,
+    sql: `insert into scores (sha, question, criteria, correct)
+          values ($sha, $question, $criteria, $correct)
+          on conflict (sha, question, criteria)
+          do update set correct = $correct`,
+  },
+
+  deleteScore: {
+    action: run,
+    sql: `delete from scores where sha = $sha and question = $question and criteria = $criteria`,
+  },
+
   shas: {
     action: all,
     sql: `select distinct sha from submissions order by sha`,
@@ -96,7 +109,7 @@ const sql = {
   getScores: {
     action: get,
     sql: `with criteria as (
-            select r.question, json_group_object(r.criteria, score) criteria
+            select r.question, json_group_object(r.criteria, correct) criteria
             from submissions
             join rubric as r
             left join scores using (sha, question, criteria)
@@ -120,8 +133,8 @@ const sql = {
     action: all,
     sql: `select
             sha,
-            sum(case when score is null then 1 else 0 end) ungraded,
-            sum(case when score is not null then 1 else 0 end) graded
+            sum(case when correct is null then 1 else 0 end) ungraded,
+            sum(case when correct is not null then 1 else 0 end) graded
           from submissions
           join rubric r
           left join scores using (sha, question, criteria)

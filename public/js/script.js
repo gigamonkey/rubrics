@@ -32,6 +32,9 @@ const show = async (which) => {
   const sha = submissions[which - 1].sha;
 
   const current = await fetch(`/a/submission/${sha}`).then(r => r.json());
+
+  console.log(current);
+
   doc.sha.innerText = current.sha;
   doc.who.innerText = current.github + ' (' + current.date + ')';
   //doc.score.innerText = scoreString(current.scores);
@@ -64,25 +67,25 @@ const fillAnswers = (current) => {
       yesButton.onclick = () => {
         if (yesButton.classList.contains('selected')) {
           yesButton.classList.remove('selected');
-          current.scores[q][k] = '';
+          current.scores[q][k] = null;
         } else {
           current.scores[q][k] = 'yes';
           yesButton.classList.add('selected');
           noButton.classList.remove('selected');
         }
-        saveScores(current);
+        saveScore(current.sha, q, k, current.scores[q][k]);
       }
 
       noButton.onclick = () => {
         if (noButton.classList.contains('selected')) {
           noButton.classList.remove('selected');
-          current.scores[q][k] = '';
+          current.scores[q][k] = null;
         } else {
           current.scores[q][k] = 'no';
           noButton.classList.add('selected');
           yesButton.classList.remove('selected');
         }
-        saveScores(current);
+        saveScore(current.sha, q, k, current.scores[q][k]);
       }
 
       label.querySelector('.description').append(k);
@@ -101,6 +104,17 @@ const scoreString = (scores) => {
 };
 
 
+const saveScore = (sha, question, criteria, correct) => {
+  fetch(`/a/scores/${sha}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({question, criteria, correct }),
+  });
+  // update overall scores. Might be best to have server send whole score data blob
+};
+
+/*
+
 const saveScores = (current) => {
   fetch(`/a/scores/${current.sha}`, {
     method: 'PUT',
@@ -109,6 +123,8 @@ const saveScores = (current) => {
   });
   doc.score.innerText = scoreString(current.scores);
 
-};
+  };
+
+  */
 
 show(parseInt((window.location.hash || "#1").substring(1)));
