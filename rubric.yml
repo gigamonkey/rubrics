@@ -18,16 +18,25 @@ BinaryOperator:
 Addition:
   extends BinaryOperator: 1.0
   constructor calls super: 1.0
+  doesn't redeclare instance variables: 1.0
+  super call takes correct args: 1.0
+  uses getters to get sub expressions: 1.0
   evaluate evaluates sub-expressions: 0.5
   evaluate correctly computes retult: 0.5
 
 Multiplication:
   extends BinaryOperator: 1.0
   constructor calls super: 1.0
+  doesn't redeclare instance variables: 1.0
+  super call takes correct args: 1.0
+  uses getters to get sub expressions: 1.0
   evaluate evaluates sub-expressions: 0.5
   evaluate correctly computes retult: 0.5
 
 LoggingAddition:
   extends Addition: 1.0
+  doesn't redeclare instance variables: 1.0
+  constructor calls super: 1.0
+  super call takes correct args: 1.0
   prints message: 1.0
   calls super.evaluate: 2.0

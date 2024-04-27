@@ -35,6 +35,11 @@ const allColumn = (column) => {
 
 const sql = {
 
+  clearRubric: {
+    action: run,
+    sql: `delete from rubric where true`,
+  },
+
   insertQuestion: {
     action: run,
     sql: `insert into questions (question, sequence) values ($question, $sequence)`,
