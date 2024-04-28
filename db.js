@@ -1,5 +1,6 @@
 import Database from 'better-sqlite3';
 import fs from 'fs';
+import { fps } from './public/js/scoring.js';
 
 const run =
   (stmt) =>
@@ -187,6 +188,17 @@ const sql = {
           left join scores using (sha, question, criteria)
           group by sha`,
   },
+
+  work: {
+    action: all,
+    sql: `select
+            date,
+            github,
+            fps(sum(case when correct = 'yes' then weight else 0 end) / sum(weight)) grade
+          from submissions, rubric
+          left join scores using (sha, question, criteria)
+          group by sha`,
+  },
 };
 
 
@@ -195,6 +207,7 @@ class DB {
     this.db = new Database(filename, {});
     this.db.pragma('journal_mode = WAL');
     this.db.pragma('foreign_keys = ON');
+    this.db.function('fps', fps)
     if (schema) {
       this.db.exec(fs.readFileSync(schema, 'utf8'));
     }

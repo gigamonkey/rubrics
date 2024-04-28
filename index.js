@@ -1,18 +1,19 @@
+import YAML from 'yaml';
 import express from 'express';
 import fs from 'fs/promises';
 import nunjucks from 'nunjucks';
 import path from 'path';
+import { DB } from './db.js';
 import { fileURLToPath } from 'url';
 import { glob } from 'glob';
 import { tsv } from './express-tsv.js';
-import { rawScore, percentGraded, fps } from './public/js/scoring.js';
-import { DB } from './db.js';
 
 const mod = (a, b) => ((a % b) + b) % b
 
 const db = new DB('db.db');
 const port = 3000;
 const app = express();
+const assignment = YAML.parse(await fs.readFile('assignment.yml', 'utf8'));
 
 app.set('json spaces', 2);
 app.use(express.json());
@@ -74,45 +75,22 @@ app.put('/a/comment/:sha', (req, res) => {
   res.send('ok');
 });
 
-
 /*
-
-app.get('/a/scores', (req, res) => {
-  res.json(commitsList.map(c => {
-    const score = rawScore(c.scores);
-    return {
-      who: c.who,
-      score,
-      fps: fps(score),
-    }
-  }));
-});
-
-app.get('/scores', (req, res) => {
-  const header = [ 'num', 'github', 'date', 'sha', 'percent graded', 'score', 'grade'];
-  const data = commitsList.map((c, i) => {
-    const score = rawScore(c.scores);
-    return [ i + 1, c.who, c.date, c.sha, percentGraded(c.scores), score, fps(score) ];
-  });
-  res.tsv([ header, ...data]);
-});
-
+ * TSV to make into the work file for this assignment.
+ */
 app.get('/work', (req, res) => {
-  const data = commitsList.map(c => {
-    return [
-      c.date,
-      'form-coding-test',
-      'Bank Inheritance',
-      'Classes',
-      c.who,
-      2.0,
-      fps(rawScore(c.scores)),
-    ];
-  })
-  res.tsv(data);
+  res.tsv(db.work().map(({date, github, grade}) =>
+    [
+      date,
+      assignment.kind,
+      assignment.name,
+      assignment.standard,
+      github,
+      assignment.weight,
+      grade
+    ]
+  ));
 });
-*/
-
 
 app.listen(port, function () {
   console.log(`http://localhost:${this.address().port}`);
