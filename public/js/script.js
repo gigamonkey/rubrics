@@ -33,7 +33,7 @@ const show = async (which) => {
 
   const current = await fetch(`/a/submission/${sha}`).then(r => r.json());
 
-  doc.score.innerText = scoreString(current.stats);
+  doc.score.innerText = scoreString(current.stats) + `; sha: ${sha.slice(0, 7)}`;
   $$('#progress span.current').forEach(e => e.classList.remove('current'));
   circles[sha].classList.add('current');
 
