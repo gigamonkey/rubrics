@@ -5,6 +5,7 @@ Expression:
 
 Number:
   extends Expression: 1.0
+  instance variable for value: 1.0
   constructor takes and initializes value: 1.0
   evaluate returns value: 1.0
 
