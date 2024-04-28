@@ -13,6 +13,7 @@ const reloadRubric = (rubric) => {
       db.insertRubricItem({question, criteria, sequence, weight});
     });
   });
+  db.scoreMissing();
 };
 
 const db = new DB('db.db');
