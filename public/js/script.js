@@ -145,10 +145,12 @@ const num = submissions.length;
 fillProgress(submissions);
 
 document.body.onkeydown = (e) => {
-  if (e.target === document.body) {
+  if (e.target.tagName !== 'TEXTAREA') {
     if (e.key === 'ArrowRight') {
+      e.preventDefault();
       showNext();
     } else if (e.key === 'ArrowLeft') {
+      e.preventDefault();
       showPrevious();
     }
   }
