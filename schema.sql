@@ -44,3 +44,8 @@ create table if not exists comments (
   comment TEXT NOT NULL,
   primary key (sha, question)
 );
+
+create table if not exists flags (
+  sha TEXT NOT NULL,
+  flag TEXT NOT NULL
+);
