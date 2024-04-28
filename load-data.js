@@ -22,6 +22,7 @@ const loadSubmissions = (files, questions) => {
       db.insertAnswer({ sha, question, answer });
     });
   });
+  db.scoreMissing();
 };
 
 const parseSubmission = (f) => {

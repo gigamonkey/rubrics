@@ -199,6 +199,23 @@ const sql = {
           left join scores using (sha, question, criteria)
           group by sha`,
   },
+
+  scoreMissing: {
+    action: run,
+    sql: `with missing as (
+            select *
+            from submissions, questions
+            left join answers  using (sha, question)
+            where coalesce(answer, '') = ''
+          )
+          insert into scores
+            select sha, question, criteria, 'no'
+            from missing
+            join rubric using (question)
+            where true
+          on conflict do nothing`,
+  },
+
 };
 
 
