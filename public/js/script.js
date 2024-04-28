@@ -33,11 +33,16 @@ const show = async (which) => {
 
   const current = await fetch(`/a/submission/${sha}`).then(r => r.json());
 
-  doc.score.innerText = scoreString(current.stats) + `; sha: ${sha.slice(0, 7)}`;
+  updateSummary(current.stats, sha);
   $$('#progress span.current').forEach(e => e.classList.remove('current'));
   circles[sha].classList.add('current');
 
+  window.scrollTo(0, 0);
   fillAnswers(current);
+};
+
+const updateSummary = (stats, sha) => {
+  doc.score.innerText = scoreString(stats) + `; sha: ${sha.slice(0, 7)}`;
 };
 
 const showNext = () => {
@@ -123,7 +128,7 @@ const saveScore = async (sha, question, criteria, correct) => {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({question, criteria, correct }),
   }).then(r => r.json());
-  doc.score.innerText = scoreString(stats);
+  updateSummary(stats, sha);
   if (stats.done === 1.0) {
     circles[sha].classList.add('done');
   } else {

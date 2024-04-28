@@ -82,7 +82,7 @@ button.no.selected {
 
 #progress {
   display: grid;
-  grid-gap: 5px;
+  grid-gap: 3px;
   grid-template-columns: repeat(auto-fill, 20px);
   justify-content: center;
 }
@@ -91,7 +91,7 @@ button.no.selected {
   display: flex;
   flex-direction: row;
   justify-content: center;
-  gap: 5px;
+  gap: 3px;
 
 }
 
@@ -99,13 +99,13 @@ button.no.selected {
 #progress span {
   border-radius: 50%;
   display: inline-block;
-  width: 16px;
-  height: 16px;
+  width: 14px;
+  height: 14px;
   border: 1px solid blue;
 }
 
 #progress span.current {
-  border: 2px solid red;
+  box-shadow: 0 0 5px 5px rgba(0, 0, 255, 0.5);
 }
 
 #progress span.done {
