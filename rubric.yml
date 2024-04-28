@@ -23,7 +23,7 @@ Addition:
   super call takes correct args: 1.0
   uses getters to get sub expressions: 1.0
   evaluate evaluates sub-expressions: 0.5
-  evaluate correctly computes retult: 0.5
+  evaluate correctly computes result: 0.5
 
 Multiplication:
   extends BinaryOperator: 1.0
@@ -32,7 +32,7 @@ Multiplication:
   super call takes correct args: 1.0
   uses getters to get sub expressions: 1.0
   evaluate evaluates sub-expressions: 0.5
-  evaluate correctly computes retult: 0.5
+  evaluate correctly computes result: 0.5
 
 LoggingAddition:
   extends Addition: 1.0
