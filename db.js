@@ -41,6 +41,16 @@ const sql = {
     sql: `delete from rubric where true`,
   },
 
+  clearSubmissions: {
+    action: run,
+    sql: `delete from submissions where true`,
+  },
+
+  clearAnswers: {
+    action: run,
+    sql: `delete from answers where true`,
+  },
+
   clearQuestions: {
     action: run,
     sql: `delete from questions where true`,
