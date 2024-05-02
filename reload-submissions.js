@@ -4,15 +4,6 @@ import path from 'path';
 import { glob } from 'glob';
 import { DB } from './db.js';
 
-const loadRubric = (rubric) => {
-  Object.entries(rubric).forEach(([question, items], sequence) => {
-    db.insertQuestion({sequence, question});
-    Object.entries(items).forEach(([criteria, weight], sequence) => {
-      db.insertRubricItem({question, criteria, sequence, weight});
-    });
-  });
-};
-
 const loadSubmissions = (files, questions) => {
   files.forEach(f => {
     const { sha, github, date, answers } = parseSubmission(f);
@@ -22,7 +13,6 @@ const loadSubmissions = (files, questions) => {
       db.insertAnswer({ sha, question, answer });
     });
   });
-  db.scoreMissing();
 };
 
 const parseSubmission = (f) => {
@@ -38,5 +28,6 @@ const db = new DB('db.db', 'schema.sql');
 const rubric = YAML.parse(fs.readFileSync('rubric.yml', 'utf8'));
 const answerFiles = await glob("answers/**/answers.json", {});
 
-loadRubric(rubric);
+db.clearSubmissions();
+db.clearAnswers();
 loadSubmissions(answerFiles, Object.keys(rubric));
