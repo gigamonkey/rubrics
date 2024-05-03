@@ -58,36 +58,36 @@ const sql = {
 
   insertQuestion: {
     action: run,
-    sql: `insert into questions (question, sequence) values ($question, $sequence)`,
+    sql: `insert into questions (class, assignment, question, sequence) values ($clazz, $assignment, $question, $sequence)`,
   },
 
   insertRubricItem: {
     action: run,
-    sql: `insert into rubric (question, criteria, sequence, weight) values ($question, $criteria, $sequence, $weight)`,
+    sql: `insert into rubric (class, assignment, question, criteria, sequence, weight) values ($clazz, $assignment, $question, $criteria, $sequence, $weight)`,
   },
 
   insertSubmission: {
     action: run,
-    sql: `insert into submissions (sha, github, date) values ($sha, $github, $date)`,
+    sql: `insert into submissions (class, assignment, sha, github, date) values ($clazz, $assignment, $sha, $github, $date)`,
   },
 
   insertAnswer: {
     action: run,
-    sql: `insert into answers (sha, question, answer) values ($sha, $question, $answer)`,
+    sql: `insert into answers (class, assignment, sha, question, answer) values ($clazz, $assignment, $sha, $question, $answer)`,
   },
 
   updateScore: {
     action: run,
-    sql: `insert into scores (sha, question, criteria, correct)
-          values ($sha, $question, $criteria, $correct)
+    sql: `insert into scores (class, assignment, sha, question, criteria, correct)
+          values ($clazz, $assignment, $sha, $question, $criteria, $correct)
           on conflict (sha, question, criteria)
           do update set correct = $correct`,
   },
 
   updateComment: {
     action: run,
-    sql: `insert into comments (sha, question, comment)
-          values ($sha, $question, $comment)
+    sql: `insert into comments (class, assignment, sha, question, comment)
+          values ($clazz, $assignment, $sha, $question, $comment)
           on conflict (sha, question)
           do update set comment = $comment`,
   },
@@ -109,7 +109,10 @@ const sql = {
 
   getQuestions: {
     action: get,
-    sql: `select json_group_array(question) value from questions order by sequence`,
+    sql: `select json_group_array(question) value
+          from questions
+          where class = $clazz and assignment = $assignment
+          order by sequence`,
   },
 
   getRubric: {
@@ -117,6 +120,7 @@ const sql = {
     sql: `with criteria as (
             select question, json_group_array(criteria) criteria
             from rubric r
+            where class = $clazz and assignment = $assignment
             group by question
             order by r.question, sequence
           )
@@ -125,7 +129,8 @@ const sql = {
 
   getSubmission: {
     action: get,
-    sql: `select sha, github, date from submissions where sha = $sha`,
+    sql: `select sha, github, date from submissions
+          where class = $clazz and assignment = $assignment and sha = $sha`,
   },
 
   allSubmissions: {
@@ -136,8 +141,9 @@ const sql = {
             date,
             sum(case when correct is not null then 1.0 else 0.0 end) / count(sha) done,
             sum(case when correct = 'yes' then weight else 0 end) / sum(weight) grade
-          from submissions, rubric
-          left join scores using (sha, question, criteria)
+          from submissions s, rubric
+          left join scores using (class, assignment, sha, question, criteria)
+          where s.class = $clazz and s.assignment = $assignment
           group by sha`,
   },
 
@@ -145,17 +151,22 @@ const sql = {
     action: get,
     sql: `select json_group_object(q.question, coalesce(answer, '')) value
           from questions q
-          left join answers a on q.question = a.question and sha = $sha`,
+          left join answers a on
+            q.class = a.class and
+            q.assignment = a.assignment and
+            q.question = a.question and
+            sha = $sha
+          where q.class = $clazz and q.assignment = $assignment`,
   },
 
   getScores: {
     action: get,
     sql: `with criteria as (
             select r.question, json_group_object(r.criteria, correct) criteria
-            from submissions
+            from submissions as s
             join rubric as r
-            left join scores using (sha, question, criteria)
-            where sha = $sha
+            left join scores using (class, assignment, sha, question, criteria)
+            where r.class = $clazz and r.assignment = $assignment and sha = $sha
             group by question
           )
           select json_group_object(question, json(criteria)) value from criteria`,
@@ -170,8 +181,9 @@ const sql = {
     action: all,
     sql: `select sha, github, date, json_group_array(answer) as answers
           from submissions
-          join answers using (sha)
-          join questions using (question)
+          join answers using (class, assignment, sha)
+          join questions using (class, assignment, question)
+          where class = $clazz and assignment = $assignment
           group by sha, github, date
           order by sequence`,
   },
@@ -182,9 +194,9 @@ const sql = {
             sha,
             sum(case when correct is not null then 1.0 else 0.0 end) / count(sha) done,
             sum(case when correct = 'yes' then weight else 0 end) / sum(weight) grade
-          from submissions, rubric
-          left join scores using (sha, question, criteria)
-          where sha = $sha`,
+          from submissions s, rubric
+          left join scores using (class, assignment, sha, question, criteria)
+          where s.class = $clazz and s.assignment = $assignment and sha = $sha`,
   },
 
   amountGraded: {
@@ -193,9 +205,9 @@ const sql = {
             sha,
             sum(case when correct is null then 1 else 0 end) ungraded,
             sum(case when correct is not null then 1 else 0 end) graded
-          from submissions
-          join rubric r
-          left join scores using (sha, question, criteria)
+          from submissions s, rubric
+          left join scores using (class, assignment, sha, question, criteria)
+          where s.class = $clazz and s.assignment = $assignment
           group by sha`,
   },
 
@@ -205,8 +217,9 @@ const sql = {
             date,
             github,
             fps(sum(case when correct = 'yes' then weight else 0 end) / sum(weight)) grade
-          from submissions, rubric
-          left join scores using (sha, question, criteria)
+          from submissions s, rubric
+          left join scores using (class, assignment, sha, question, criteria)
+          where s.class = $clazz and s.assignment = $assignment
           group by sha`,
   },
 
@@ -214,24 +227,23 @@ const sql = {
     action: run,
     sql: `with missing as (
             select *
-            from submissions, questions
-            left join answers  using (sha, question)
-            where coalesce(answer, '') = ''
+            from submissions s, questions
+            left join answers  using (class, assignment, sha, question)
+            where s.class = $clazz and s.assignment = $assignment and coalesce(answer, '') = ''
           )
           insert into scores
-            select sha, question, criteria, 'no'
-            from missing
+            select m.class, m.assignment, sha, question, criteria, 'no'
+            from missing m
             join rubric using (question)
             where true
           on conflict do nothing`,
   },
-
 };
 
 
 class DB {
   constructor(filename, schema) {
-    this.db = new Database(filename, {});
+    this.db = new Database(filename, {verbose: console.log});
     this.db.pragma('journal_mode = WAL');
     this.db.pragma('foreign_keys = ON');
     this.db.function('fps', fps)
@@ -241,6 +253,7 @@ class DB {
 
     // Dynamically create methods for each bit of sql
     Object.entries(sql).forEach(([name, spec]) => {
+      //console.log(spec.sql);
       const stmt = this.db.prepare(spec.sql);
       this[name] = spec.action(stmt);
     });

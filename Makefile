@@ -5,8 +5,8 @@ SHELL := bash -O globstar
 
 all: db.db
 
-db.db: schema.sql load-data.js
-	node load-data.js
+db.db: schema.sql make-db.js
+	node make-db.js
 
 pretty:
 	prettier -w **/*.js *.sql public/**/*.css

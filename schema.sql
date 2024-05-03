@@ -2,14 +2,21 @@
 
 --PRAGMA foreign_keys = ON;
 
+-- Assignments
+create table if not exists assignments (class TEXT, assignment TEXT);
+
 -- Questions for ordering
 create table if not exists questions (
+  class TEXT,
+  assignment TEXT,
   question TEXT PRIMARY_KEY,
   sequence INTEGER
 );
 
 -- Rubric items per question
 create table if not exists rubric (
+  class TEXT,
+  assignment TEXT,
   question TEXT NOT NULL,
   criteria TEXT NOT NULL,
   sequence INTEGER NOT NULL,
@@ -18,19 +25,25 @@ create table if not exists rubric (
 
 -- Submissions per student, date commit
 create table if not exists submissions (
+  class TEXT,
+  assignment TEXT,
   sha TEXT PRIMARY KEY,
   github TEXT NOT NULL,
   date TEXT NOT NULL
 );
 
--- Answers per student, date, commit
+-- Answers per submission.
 create table if not exists answers (
+  class TEXT,
+  assignment TEXT,
   sha TEXT NOT NULL,
   question TEXT NOT NULL,
   answer TEXT NOT NULL
 );
 
 create table if not exists scores (
+  class TEXT,
+  assignment TEXT,
   sha TEXT NOT NULL,
   question TEXT NOT NULL,
   criteria TEXT NOT NULL,
@@ -39,6 +52,8 @@ create table if not exists scores (
 );
 
 create table if not exists comments (
+  class TEXT,
+  assignment TEXT,
   sha TEXT NOT NULL,
   question TEXT NOT NULL,
   comment TEXT NOT NULL,
@@ -46,6 +61,8 @@ create table if not exists comments (
 );
 
 create table if not exists flags (
+  class TEXT,
+  assignment TEXT,
   sha TEXT NOT NULL,
   flag TEXT NOT NULL
 );
