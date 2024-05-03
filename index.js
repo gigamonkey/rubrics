@@ -29,14 +29,18 @@ const env = nunjucks.configure('views', {
  * All submissions.
  */
 app.get('/a/submissions/:clazz/:assignment', (req, res) => {
-  const { clazz, assignment } = req.params;
-  res.json(db.allSubmissions({clazz, assignment}));
+  res.json(db.allSubmissions(req.params));
+});
+
+app.get('/a/rubrics/:clazz/:assignment', (req, res) => {
+  res.type('json');
+  res.send(db.getRubric(req.params).json);
 });
 
 /*
  * One fully hydrated submission with answers and scores.
  */
-app.get('/a/submission/:clazz/:assignment/:sha', (req, res) => {
+app.get('/a/submissions/:clazz/:assignment/:sha', (req, res) => {
   res.json({
     ...db.getSubmission(req.params),
     answers: JSON.parse(db.getAnswers(req.params).value),

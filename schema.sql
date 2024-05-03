@@ -128,3 +128,31 @@ join rubric_weights using (class, assignment, question, criteria)
 left join scores using (class, assignment, sha, question, criteria)
 left join rubric_results using (class, assignment, question, criteria, result)
 group by class, assignment, sha;
+
+create view if not exists rubric_json (
+class, assignment, json
+) as
+with criteria_results as (
+  select
+    class,
+    assignment,
+    question,
+    criteria,
+    json_group_array(result) as results
+  from rubric_results
+  group by class, assignment, question, criteria
+), by_question as (
+  select
+    class,
+    assignment,
+    question,
+    json_group_object(criteria, json(results)) as criteria
+  from criteria_results
+  group by class, assignment, question
+)
+select
+  class,
+  assignment,
+  json_group_object(question, json(criteria)) as rubric
+from by_question
+group by class, assignment;

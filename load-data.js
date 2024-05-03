@@ -72,15 +72,9 @@ const parseSubmission = (f) => {
 const db = new DB('db.db', 'schema.sql');
 
 const dir = argv[2];
-
 const { clazz, assignment } = parseDirname(dir);
-
 const spec = YAML.parse(fs.readFileSync(path.join(dir, 'assignment.yml'), 'utf8'));
-
-
 const answerFiles = await glob(path.join(dir, '**', spec.file), {});
-
-console.log(answerFiles);
 
 loadRubric(clazz, assignment, spec.rubric);
 

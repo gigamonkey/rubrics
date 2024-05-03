@@ -132,14 +132,7 @@ const sql = {
 
   getRubric: {
     action: get,
-    sql: `with criteria as (
-            select question, json_group_array(criteria) criteria
-            from rubric r
-            where class = $clazz and assignment = $assignment
-            group by question
-            order by r.question, sequence
-          )
-          select json_group_object(question, json(criteria)) value from criteria`,
+    sql: `select json from rubric_json where class = $clazz and assignment= $assignment`,
   },
 
   getSubmission: {
