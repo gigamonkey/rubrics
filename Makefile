@@ -1,12 +1,19 @@
 # Remove make's default rules.
 .SUFFIXES:
 
+.PHONY: load
+
 SHELL := bash -O globstar
 
-all: db.db
+all: load
 
 db.db: schema.sql make-db.js
 	node make-db.js
+
+load: db.db
+	node load-data assignments/itp/hofs-1
+	node load-data assignments/csa/inheritance-2-spicy
+
 
 pretty:
 	prettier -w **/*.js *.sql public/**/*.css
