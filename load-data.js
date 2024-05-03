@@ -8,8 +8,16 @@ import { argv } from 'process';
 const loadRubric = (clazz, assignment, rubric) => {
   Object.entries(rubric).forEach(([question, items], sequence) => {
     db.insertQuestion({clazz, assignment, sequence, question});
-    Object.entries(items).forEach(([criteria, weight], sequence) => {
-      db.insertRubricItem({clazz, assignment, question, criteria, sequence, weight});
+    Object.entries(items).forEach(([criteria, results], sequence) => {
+      db.insertRubricItem({clazz, assignment, question, criteria, sequence});
+      if (typeof results === 'number') {
+        db.insertRubricResult({clazz, assignment, question, criteria, result: 'yes', score: results});
+        db.insertRubricResult({clazz, assignment, question, criteria, result: 'no', score: 0.0});
+      } else {
+        Object.entries(results).forEach(([result, score]) => {
+          db.insertRubricResult({clazz, assignment, question, criteria, result, score});
+        });
+      }
     });
   });
 };

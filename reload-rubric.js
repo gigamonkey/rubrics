@@ -4,8 +4,11 @@ import path from 'path';
 import { glob } from 'glob';
 import { DB } from './db.js';
 
+// FIXME: convert to class/assignent foo.
+
 const reloadRubric = (rubric) => {
   db.clearQuestions();
+  db.clearRubricResults();
   db.clearRubric();
   Object.entries(rubric).forEach(([question, items], sequence) => {
     db.insertQuestion({sequence, question});

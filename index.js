@@ -81,12 +81,12 @@ app.put('/a/comment/:sha', (req, res) => {
 app.get('/work/:clazz/:assignment', async (req, res) => {
   const { clazz, assignment } = req.params;
   const assignmentFile = path.join('assignments', clazz, assignment, 'assignment.yml');
-  const { kind, name, standard, weight } = YAML.parse(await fs.readFile(assignmentFile, 'utf8'));
-  res.tsv(db.work().map(({date, github, grade}) =>
+  const { kind, standard, weight } = YAML.parse(await fs.readFile(assignmentFile, 'utf8'));
+  res.tsv(db.work().map(({date, assignment, github, grade}) =>
     [
       date,
       kind,
-      name,
+      assignment,
       standard,
       github,
       weight,
