@@ -26,12 +26,12 @@ const fillProgress = (submissions) => {
 /*
  * Show the answers and score for a given numbered commit.
  */
-const show = async (which) => {
+const show = async (clazz, assignment, which) => {
   window.location.hash = `#${which}`;
 
   const sha = submissions[which - 1].sha;
 
-  const current = await fetch(`/a/submission/${sha}`).then(r => r.json());
+  const current = await fetch(`/a/submission/${clazz}/${assignment}/${sha}`).then(r => r.json());
 
   updateSummary(current.stats, sha);
   $$('#progress span.current').forEach(e => e.classList.remove('current'));
@@ -144,7 +144,8 @@ const saveComment = async (sha, question, comment) => {
   });
 };
 
-const submissions = await fetch('/a/submissions/').then(r => r.json());
+const [ clazz, assignment ] = window.location.pathname.split('/').slice(2);
+const submissions = await fetch(`/a/submissions/${clazz}/${assignment}`).then(r => r.json());
 const num = submissions.length;
 
 fillProgress(submissions);
@@ -161,4 +162,4 @@ document.body.onkeydown = (e) => {
   }
 }
 
-show(parseInt((window.location.hash || "#1").substring(1)));
+show(clazz, assignment, parseInt((window.location.hash || "#1").substring(1)));

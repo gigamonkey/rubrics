@@ -7,13 +7,13 @@ import { DB } from './db.js';
 import { fileURLToPath } from 'url';
 import { glob } from 'glob';
 import { tsv } from './express-tsv.js';
+const __dirname = import.meta.dirname;
 
 const mod = (a, b) => ((a % b) + b) % b
 
 const db = new DB('db.db');
 const port = 3000;
 const app = express();
-const assignment = YAML.parse(await fs.readFile('assignment.yml', 'utf8'));
 
 app.set('json spaces', 2);
 app.use(express.json());
@@ -28,21 +28,21 @@ const env = nunjucks.configure('views', {
 /*
  * All submissions.
  */
-app.get('/a/submissions', (req, res) => {
-  res.json(db.allSubmissions());
+app.get('/a/submissions/:clazz/:assignment', (req, res) => {
+  const { clazz, assignment } = req.params;
+  res.json(db.allSubmissions({clazz, assignment}));
 });
 
 /*
  * One fully hydrated submission with answers and scores.
  */
-app.get('/a/submission/:sha', (req, res) => {
-  const { sha } = req.params;
+app.get('/a/submission/:clazz/:assignment/:sha', (req, res) => {
   res.json({
-    ...db.getSubmission({sha}),
-    answers: JSON.parse(db.getAnswers({sha}).value),
-    scores: JSON.parse(db.getScores({sha}).value),
-    comments: JSON.parse(db.getComments({sha}).value),
-    stats: db.gradeStats({sha}),
+    ...db.getSubmission(req.params),
+    answers: JSON.parse(db.getAnswers(req.params).value),
+    scores: JSON.parse(db.getScores(req.params).value),
+    comments: JSON.parse(db.getComments(req.params).value),
+    stats: db.gradeStats(req.params),
   });
 });
 
@@ -78,18 +78,26 @@ app.put('/a/comment/:sha', (req, res) => {
 /*
  * TSV to make into the work file for this assignment.
  */
-app.get('/work', (req, res) => {
+app.get('/work/:clazz/:assignment', async (req, res) => {
+  const { clazz, assignment } = req.params;
+  const assignmentFile = path.join('assignments', clazz, assignment, 'assignment.yml');
+  const { kind, name, standard, weight } = YAML.parse(await fs.readFile(assignmentFile, 'utf8'));
   res.tsv(db.work().map(({date, github, grade}) =>
     [
       date,
-      assignment.kind,
-      assignment.name,
-      assignment.standard,
+      kind,
+      name,
+      standard,
       github,
-      assignment.weight,
+      weight,
       grade
     ]
   ));
+});
+
+// FIXME: move html out of public
+app.get('/grade/:clazz/:assignment', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
 app.listen(port, function () {
