@@ -9,30 +9,24 @@
   <link href="/css/prism.css" media="all" rel="stylesheet" type="text/css">
   <script src="/js/prism.js" defer></script>
   <script src="/js/script.js" type="module"></script>
-</head>
-<body>
-  <div id="progress"></div>
-  <p id="score"></p>
-
   <template id="q">
-    <div class="question">
-      <div class="code">
-        <pre><code></code></pre>
-      </div>
-      <div>
-        <div class="rubric"></div>
-      </div>
+    <div class="code">
+      <pre><code></code></pre>
+    </div>
+    <div class="rubric">
+      <div class="criteria"></div>
     </div>
   </template>
 
   <template id="r">
-    <div>
-      <span class="buttons"></span>
-      <span class="description"></span>
-    </div>
+    <span class="buttons"></span>
+    <span class="description"></span>
   </template>
+</head>
 
+<body>
+  <div id="progress"></div>
+  <p id="score"></p>
   <div id="questions"></div>
-
 </body>
 </html>

@@ -79,13 +79,12 @@ app.put('/a/:clazz/:assignment/scores/:sha', (req, res) => {
 /*
  * Update or delete per-question comment.
  */
-app.put('/a/comment/:sha', (req, res) => {
-  const { sha } = req.params;
-  const { question, comment } = req.body;
-  if (comment) {
-    db.updateComment({sha, question, comment });
+app.put('/a/comment/:clazz/:assignment/:sha', (req, res) => {
+  const args = { ...req.params, ...req.body };
+  if (args.comment) {
+    db.updateComment(args);
   } else {
-    db.deleteComment({sha, question });
+    db.deleteComment(args);
   }
   res.send('ok');
 });

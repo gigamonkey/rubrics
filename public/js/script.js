@@ -66,14 +66,16 @@ const fillAnswers = (clazz, assignment, current, rubric, lang) => {
 
   Object.entries(current.answers).forEach(([q, answer]) => {
     const temp = doc.q.content.cloneNode(true);
+
     const code = temp.querySelector('div.code code');
     code.classList.add(`language-${lang}`);
     code.append(answer);
 
     const rubricDiv = temp.querySelector('.rubric');
+    const criteriaDiv = rubricDiv.querySelector('.criteria');
 
     Object.entries(current.scores[q]).forEach(([k, v]) => {
-      const label = doc.r.content.cloneNode(true).firstElementChild;
+      const label = doc.r.content.cloneNode(true);
 
       rubric[q][k].forEach(a => {
         const button = html(`<button value="${a}">${a}</button>`);
@@ -89,7 +91,7 @@ const fillAnswers = (clazz, assignment, current, rubric, lang) => {
             current.scores[q][k] = null;
           } else {
             current.scores[q][k] = a;
-            label.querySelectorAll('.buttons > button').forEach(b => {
+            button.parentNode.querySelectorAll('button').forEach(b => {
               b.classList.remove('selected');
             });
             button.classList.add('selected');
@@ -101,12 +103,12 @@ const fillAnswers = (clazz, assignment, current, rubric, lang) => {
       });
 
       label.querySelector('.description').append(k);
-      rubricDiv.append(label);
+      criteriaDiv.append(label);
     });
     const commentBox = $('<textarea>');
     commentBox.value = current.comments[q] ?? ''
     commentBox.onchange = (e) => {
-      saveComment(current.sha, q, e.target.value);
+      saveComment(clazz, assignment, current.sha, q, e.target.value);
     };
     rubricDiv.append(commentBox);
 
@@ -137,8 +139,8 @@ const saveScore = async (clazz, assignment, current, question, criteria, result)
   }
 };
 
-const saveComment = async (sha, question, comment) => {
-  fetch(`/a/comment/${sha}`, {
+const saveComment = async (clazz, assignment, sha, question, comment) => {
+  fetch(`/a/comment/${clazz}/${assignment}/${sha}`, {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({question, comment }),
