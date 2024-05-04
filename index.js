@@ -110,9 +110,8 @@ app.get('/work/:clazz/:assignment', async (req, res) => {
   ));
 });
 
-// FIXME: move html out of public
 app.get('/grade/:clazz/:assignment', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+  res.sendFile(path.join(__dirname, 'index.html'));
 });
 
 app.listen(port, function () {
