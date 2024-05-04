@@ -25,6 +25,11 @@ const env = nunjucks.configure('views', {
   express: app,
 });
 
+const getAssignment = async (clazz, assignment) => {
+  const file = path.join('assignments', clazz, assignment, 'assignment.yml');
+  return YAML.parse(await fs.readFile(file, 'utf8'));
+};
+
 /*
  * All submissions.
  */
@@ -55,8 +60,7 @@ app.get('/a/submissions/:clazz/:assignment/:sha', (req, res) => {
  */
 app.get('/a/assignment/:clazz/:assignment', async (req, res) => {
   const { clazz, assignment } = req.params;
-  const assignmentFile = path.join('assignments', clazz, assignment, 'assignment.yml');
-  res.json(YAML.parse(await fs.readFile(assignmentFile, 'utf8')));
+  res.json(await getAssignment(clazz, assignment))
 });
 
 /*
@@ -92,9 +96,8 @@ app.put('/a/comment/:sha', (req, res) => {
  */
 app.get('/work/:clazz/:assignment', async (req, res) => {
   const { clazz, assignment } = req.params;
-  const assignmentFile = path.join('assignments', clazz, assignment, 'assignment.yml');
-  const { kind, standard, weight } = YAML.parse(await fs.readFile(assignmentFile, 'utf8'));
-  res.tsv(db.work().map(({date, assignment, github, grade}) =>
+  const { kind, standard, weight } = await getAssignment(clazz, assignment);
+  res.tsv(db.work(req.params).map(({date, assignment, github, grade}) =>
     [
       date,
       kind,
