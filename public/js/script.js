@@ -7,13 +7,13 @@ const mod = (a, b) => ((a % b) + b) % b;
 
 const circles = {};
 
-const fillProgress = (clazz, assignment,submissions, rubric) => {
+const fillProgress = (clazz, assignment,submissions, rubric, lang) => {
   const p = $('#progress');
   submissions.forEach((s, i) => {
     const span = $('<span>');
     circles[s.sha] = span;
     span.onclick = () => {
-      show(clazz, assignment, submissions, rubric, i + 1);
+      show(clazz, assignment, submissions, rubric, lang, i + 1);
     };
     if (s.done === 1.0) {
       span.classList.add('done');
@@ -26,7 +26,7 @@ const fillProgress = (clazz, assignment,submissions, rubric) => {
 /*
  * Show the answers and score for a given numbered commit.
  */
-const show = async (clazz, assignment, submissions, rubric, which) => {
+const show = async (clazz, assignment, submissions, spec, lang, which) => {
   window.location.hash = `#${which}`;
 
   const sha = submissions[which - 1].sha;
@@ -38,7 +38,7 @@ const show = async (clazz, assignment, submissions, rubric, which) => {
   circles[sha].classList.add('current');
 
   window.scrollTo(0, 0);
-  fillAnswers(clazz, assignment, current, rubric);
+  fillAnswers(clazz, assignment, current, rubric, lang);
 };
 
 const updateSummary = (stats, sha) => {
@@ -47,21 +47,23 @@ const updateSummary = (stats, sha) => {
 
 const currentNum = () => parseInt((window.location.hash || "#1").substring(1));
 
-const showNext = (clazz, assignment, submissions, rubric) => {
-  show(clazz, assignment, submissions, rubric, mod(currentNum(), submissions.length) + 1);
+const showNext = (clazz, assignment, submissions, rubric, lang) => {
+  show(clazz, assignment, submissions, rubric, lang, mod(currentNum(), submissions.length) + 1);
 };
 
-const showPrevious = (clazz, assignment, submissions, rubric) => {
-  show(clazz, assignment, submissions, rubric, mod(currentNum() - 2, submissions.length) + 1);
+const showPrevious = (clazz, assignment, submissions, rubric, lang) => {
+  show(clazz, assignment, submissions, rubric, lang, mod(currentNum() - 2, submissions.length) + 1);
 };
 
-const fillAnswers = (clazz, assignment, current, rubric) => {
+const fillAnswers = (clazz, assignment, current, rubric, lang) => {
 
   doc.questions.replaceChildren();
 
   Object.entries(current.answers).forEach(([q, answer]) => {
     const temp = doc.q.content.cloneNode(true);
-    temp.querySelector('code.language-java').append(answer);
+    const code = temp.querySelector('div.code code');
+    code.classList.add(`language-${lang}`);
+    code.append(answer);
 
     const rubricDiv = temp.querySelector('.rubric');
 
@@ -107,7 +109,7 @@ const fillAnswers = (clazz, assignment, current, rubric) => {
     doc.questions.append(temp);
   });
 
-  $$('code.language-java').forEach(e => Prism.highlightElement(e));
+  $$('div.code code').forEach(e => Prism.highlightElement(e));
 }
 
 const scoreString = (score) => {
@@ -140,19 +142,20 @@ const saveComment = async (sha, question, comment) => {
 const [ clazz, assignment ] = window.location.pathname.split('/').slice(2);
 const rubric = await fetch(`/a/rubrics/${clazz}/${assignment}`).then(r => r.json());
 const submissions = await fetch(`/a/submissions/${clazz}/${assignment}`).then(r => r.json());
+const spec = await fetch(`/a/assignment/${clazz}/${assignment}`).then(r => r.json());
 
-fillProgress(clazz, assignment, submissions, rubric);
+fillProgress(clazz, assignment, submissions, rubric, spec.language);
 
 document.body.onkeydown = (e) => {
   if (e.target.tagName !== 'TEXTAREA') {
     if (e.key === 'ArrowRight') {
       e.preventDefault();
-      showNext(clazz, assignment, submissions, rubric);
+      showNext(clazz, assignment, submissions, rubric, spec.language);
     } else if (e.key === 'ArrowLeft') {
       e.preventDefault();
-      showPrevious(clazz, assignment, submissions, rubric);
+      showPrevious(clazz, assignment, submissions, rubric, spec.language);
     }
   }
 }
 
-show(clazz, assignment, submissions, rubric, currentNum());
+show(clazz, assignment, submissions, rubric, spec.language, currentNum());

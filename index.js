@@ -51,6 +51,15 @@ app.get('/a/submissions/:clazz/:assignment/:sha', (req, res) => {
 });
 
 /*
+ * Full assignment spec.
+ */
+app.get('/a/assignment/:clazz/:assignment', async (req, res) => {
+  const { clazz, assignment } = req.params;
+  const assignmentFile = path.join('assignments', clazz, assignment, 'assignment.yml');
+  res.json(YAML.parse(await fs.readFile(assignmentFile, 'utf8')));
+});
+
+/*
  * Update score for one rubric item for one submission.
  */
 app.put('/a/:clazz/:assignment/scores/:sha', (req, res) => {
@@ -76,6 +85,7 @@ app.put('/a/comment/:sha', (req, res) => {
   }
   res.send('ok');
 });
+
 
 /*
  * TSV to make into the work file for this assignment.
