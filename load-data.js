@@ -62,8 +62,8 @@ const parseCodeJs = (f) => {
 
 const parseSubmission = (f) => {
   const sha     = fs.readFileSync(path.join(path.dirname(f), "commit.txt"), { encoding: 'utf8' }).trim();
+  const date    = fs.readFileSync(path.join(path.dirname(f), "date.txt"), { encoding: 'utf8' }).trim();
   const github  = path.basename(path.dirname(path.dirname(f)));
-  const date    = path.basename(path.dirname(f));
   const answerText = fs.readFileSync(f, { encoding: 'utf8' });
   return { sha, github, date, answerText };
 };

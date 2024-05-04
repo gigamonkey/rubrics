@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Alfa+Slab+One&family=Montserrat:wght@100;300;400;500&display=swap');
+
 html {
   box-sizing: border-box;
 }
@@ -8,10 +10,7 @@ html {
 body {
   width: 90vw;
   margin: 0.25in auto;
-}
-
-h1 {
-  font-family: sans-serif;
+  font-family: "Montserrat", sans-serif;
 }
 
 p {
@@ -35,10 +34,6 @@ div.question div.code {
 
 div.question div.code pre {
   height: calc(100% - 1em * 2);
-}
-
-div.rubric {
-  font-family: Consolas,Monaco,'Andale Mono','Ubuntu Mono',monospace;
 }
 
 div.rubric > div {
@@ -116,5 +111,11 @@ button.selected {
 }
 
 #score {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
   text-align: right;
+  background: #eef;
+  border: 1px solid black;
+  padding: 1em;
 }

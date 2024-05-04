@@ -33,7 +33,7 @@ const show = async (clazz, assignment, submissions, spec, lang, which) => {
 
   const current = await fetch(`/a/submissions/${clazz}/${assignment}/${sha}`).then(r => r.json());
 
-  updateSummary(current.stats, sha);
+  updateSummary(current);
   $$('#progress span.current').forEach(e => e.classList.remove('current'));
   circles[sha].classList.add('current');
 
@@ -41,8 +41,13 @@ const show = async (clazz, assignment, submissions, spec, lang, which) => {
   fillAnswers(clazz, assignment, current, rubric, lang);
 };
 
-const updateSummary = (stats, sha) => {
-  doc.score.innerText = scoreString(stats) + `; sha: ${sha.slice(0, 7)}`;
+const updateSummary = (current) => {
+  const { stats, sha, date } = current;
+  doc.score.replaceChildren();
+  doc.score.append($('<span>', `${date} / ${sha.slice(0, 7)}`));
+  doc.score.append($('<span>', `Score: ${(100 * stats.grade).toFixed(1)}`));
+  doc.score.append($('<span>', `Grade: ${fps(stats.grade)}`));
+  doc.score.append($('<span>', 'Done: ' + (stats.done === 1.0 ? '✅' : `${(100 * stats.done).toFixed(1)}%`)));
 };
 
 const currentNum = () => parseInt((window.location.hash || "#1").substring(1));
@@ -89,7 +94,7 @@ const fillAnswers = (clazz, assignment, current, rubric, lang) => {
             });
             button.classList.add('selected');
           }
-          saveScore(clazz, assignment, current.sha, q, k, current.scores[q][k]);
+          saveScore(clazz, assignment, current, q, k, current.scores[q][k]);
         };
 
         label.querySelector('.buttons').append(button);
@@ -117,13 +122,14 @@ const scoreString = (score) => {
   return `Score: ${(100 * score.grade).toFixed(1)}; Grade: ${fps(score.grade)}; Done: ${done}`;
 };
 
-const saveScore = async (clazz, assignment, sha, question, criteria, result) => {
-  const stats = await fetch(`/a/${clazz}/${assignment}/scores/${sha}`, {
+const saveScore = async (clazz, assignment, current, question, criteria, result) => {
+  const { date, sha } = current;
+  current.stats = await fetch(`/a/${clazz}/${assignment}/scores/${sha}`, {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({question, criteria, result }),
   }).then(r => r.json());
-  updateSummary(stats, sha);
+  updateSummary(current);
   if (stats.done === 1.0) {
     circles[sha].classList.add('done');
   } else {

@@ -12,8 +12,6 @@ db.db: schema.sql make-db.js
 
 load: db.db
 	node load-data assignments/itp/hofs-1
-	node load-data assignments/csa/inheritance-2-spicy
-
 
 pretty:
 	prettier -w **/*.js *.sql public/**/*.css
