@@ -53,16 +53,14 @@ app.get('/a/submissions/:clazz/:assignment/:sha', (req, res) => {
 /*
  * Update score for one rubric item for one submission.
  */
-app.put('/a/scores/:sha', (req, res) => {
-  const { sha } = req.params;
-  const { question, criteria, correct } = req.body;
-  console.log(`Saving score for ${JSON.stringify({sha, question, criteria, correct })}`);
-  if (correct) {
-    db.updateScore({sha, question, criteria, correct });
+app.put('/a/:clazz/:assignment/scores/:sha', (req, res) => {
+  const k = {...req.params, ...req.body};
+  if (req.body.result) {
+    db.updateScore(k);
   } else {
-    db.deleteScore({sha, question, criteria });
+    db.deleteScore(k);
   }
-  res.json(db.gradeStats({sha}));
+  res.json(db.gradeStats(k));
 });
 
 /*

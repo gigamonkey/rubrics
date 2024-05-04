@@ -121,7 +121,7 @@ select
   github,
   date,
   sum(case when scores.result is not null then 1.0 else 0.0 end) / count(sha) done,
-  sum(coalesce(score, 0)) / sum(weight) grade
+  sum(coalesce(cast(score as float), 0)) / sum(weight) grade
 from submissions s
 join rubric using (class, assignment)
 join rubric_weights using (class, assignment, question, criteria)

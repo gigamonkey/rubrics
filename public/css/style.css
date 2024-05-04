@@ -41,12 +41,18 @@ div.rubric {
   font-family: Consolas,Monaco,'Andale Mono','Ubuntu Mono',monospace;
 }
 
-div.rubric label {
+div.rubric > div {
   display: grid;
-  grid-template-columns: auto auto 1fr;
+  grid-template-columns: auto 1fr;
   padding-bottom: 10px;
   align-items: center;
   grid-gap: 6px;
+}
+
+div.rubric > div > .buttons {
+  display: flex;
+  flex-direction: row;
+  gap: 5px;
 }
 
 div.rubric label input[type="checkbox"] {
@@ -65,15 +71,13 @@ div.rubric label button {
 }
 
 button {
-  background: #ddd;
+  background: #eee;
+  border-radius: 0.75em;
 }
 
-button.yes.selected {
-  background: #00ff00;
-}
-
-button.no.selected {
-  background: #ff0000;
+button.selected {
+  background: blue;
+  color: white
 }
 
 #who {
@@ -94,7 +98,6 @@ button.no.selected {
   gap: 3px;
 
 }
-
 
 #progress span {
   border-radius: 50%;
